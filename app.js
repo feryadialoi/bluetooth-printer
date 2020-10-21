@@ -60,9 +60,10 @@ async function printReceipt() {
 		const buffer = stringToArrayBuffer(template)
 
 		printingStatus.innerHTML = 'printing...'
-		// await characteristic?.writeValue(buffer)
 
-		await writeChunk(characteristic, template)
+		await characteristic?.writeValue(buffer)
+
+		// await writeChunk(characteristic, template)
 
 		printingStatus.innerHTML = 'printing done'
 	} catch (error) {
