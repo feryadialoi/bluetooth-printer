@@ -17,6 +17,7 @@ var characteristicStatus = document.querySelector('.characteristic-status')
 var templateStatus = document.querySelector('.template-status')
 var printingStatus = document.querySelector('.printing-status')
 var templateContent = document.querySelector('.template-content')
+var errorStatus = document.querySelector('.error-status')
 
 var btnConnect = document.querySelector('#btn-connect')
 btnConnect.addEventListener('click', function () {
@@ -62,6 +63,7 @@ async function printReceipt() {
 		printingStatus.innerHTML = 'printing done'
 	} catch (error) {
 		console.log('error print receipt', error)
+		errorStatus.innerHTML = JSON.stringify(error)
 	}
 }
 
