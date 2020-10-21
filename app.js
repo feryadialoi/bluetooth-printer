@@ -14,6 +14,9 @@ var deviceStatus = document.querySelector('.device-status')
 var serverStatus = document.querySelector('.server-status')
 var serviceStatus = document.querySelector('.service-status')
 var characteristicStatus = document.querySelector('.characteristic-status')
+var templateStatus = document.querySelector('.template-status')
+var printingStatus = document.querySelector('.printing-status')
+var templateContent = document.querySelector('.template-content')
 
 var btnConnect = document.querySelector('#btn-connect')
 btnConnect.addEventListener('click', function () {
@@ -32,14 +35,14 @@ btnPrint.addEventListener('click', function () {
 
 function templateReceipt() {
 	let template = ''
-	template += '===============================\n\n'
+	// template += '===============================\n\n'
 
 	products.forEach((product) => {
 		template += `${product.name} : ${product.quantity}\n`
 		template += `Rp ${product.price * product.quantity}\n`
 	})
 
-	template += '================================\n'
+	// template += '================================\n'
 	template += '\n\n\n'
 	return template
 }
@@ -48,10 +51,14 @@ async function printReceipt() {
 	try {
 		const template = templateReceipt()
 
+		templateStatus.innerHTML = 'template'
+		templateContent.innerHTML = template
+
 		const characteristic = await connectPrinter()
 		const buffer = stringToArrayBuffer(template)
 
 		characteristic?.writeValue(buffer)
+		printingStatus.innerHTML = 'printing...'
 	} catch (error) {
 		console.log('error print receipt', error)
 	}
@@ -68,13 +75,23 @@ async function connectPrinter() {
 			deviceStatus.innerHTML = device
 		}
 		const server = await device.gatt.connect()
+		if (server) {
+			serverStatus.innerHTML = server
+		}
 		const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb')
+		if (service) {
+			serviceStatus.innerHTML = service
+		}
 		const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb')
+		if (characteristic) {
+			characteristicStatus.innerHTML = characteristic
+		}
 		return characteristic
 	} catch (error) {
 		console.log('error connect printer', error)
 	}
 }
+
 function stringToArrayBuffer(text) {
 	const encoder = new TextEncoder()
 	const encoded = encoder.encode(text)
