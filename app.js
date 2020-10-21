@@ -57,8 +57,9 @@ async function printReceipt() {
 		const characteristic = await connectPrinter()
 		const buffer = stringToArrayBuffer(template)
 
-		characteristic?.writeValue(buffer)
 		printingStatus.innerHTML = 'printing...'
+		await characteristic?.writeValue(buffer)
+		printingStatus.innerHTML = 'printing done'
 	} catch (error) {
 		console.log('error print receipt', error)
 	}
