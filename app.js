@@ -59,7 +59,10 @@ async function printReceipt() {
 		const buffer = stringToArrayBuffer(template)
 
 		printingStatus.innerHTML = 'printing...'
-		await characteristic?.writeValue(buffer)
+		// await characteristic?.writeValue(buffer)
+
+		writeChunk(characteristic, template)
+
 		printingStatus.innerHTML = 'printing done'
 	} catch (error) {
 		console.log('error print receipt', error)
@@ -100,4 +103,35 @@ function stringToArrayBuffer(text) {
 	const encoded = encoder.encode(text)
 	console.log('encoded', encoded)
 	return encoded.buffer
+}
+
+function writeStrToCharacteristic(characteristic, str) {
+	let buffer = new ArrayBuffer(str.length)
+	let dataView = new DataView(buffer)
+	for (var i = 0; i < str.length; i++) {
+		dataView.setUint8(i, str.charAt(i).charCodeAt())
+	}
+	console.log('accessing the device')
+	return characteristic.writeValue(buffer)
+}
+
+function writeChunk(characteristic, textString) {
+	var maxChunk = 300
+	var j = 0
+
+	if (textString.length > maxChunk) {
+		for (var i = 0; i < textString.length; i += maxChunk) {
+			var subStr
+			if (i + maxChunk <= textString.length) {
+				subStr = textString.substring(i, i + maxChunk)
+			} else {
+				subStr = textString.substring(i, textString.length)
+			}
+
+			setTimeout(writeStrToCharacteristic, 250 * j, subStr)
+			j++
+		}
+	} else {
+		writeStrToCharacteristic(characteristic, textString)
+	}
 }
