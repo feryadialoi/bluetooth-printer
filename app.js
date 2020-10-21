@@ -63,7 +63,7 @@ async function printReceipt() {
 		printingStatus.innerHTML = 'printing done'
 	} catch (error) {
 		console.log('error print receipt', error)
-		errorStatus.innerHTML = JSON.stringify(error)
+		errorStatus.innerHTML = 'error: ' + error?.name + ', ' + error?.message
 	}
 }
 
