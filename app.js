@@ -51,7 +51,7 @@ function templateReceipt() {
 async function printReceipt() {
 	try {
 		let template = templateReceipt()
-		template = '12345678901234567890123456789012345'
+		template = '12345678901234567890123456789012\n'
 
 		templateStatus.innerHTML = 'template'
 		templateContent.innerHTML = template
