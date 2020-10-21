@@ -19,6 +19,8 @@ var printingStatus = document.querySelector('.printing-status')
 var templateContent = document.querySelector('.template-content')
 var errorStatus = document.querySelector('.error-status')
 
+var printCounter = document.querySelector('.print-counter')
+
 var btnConnect = document.querySelector('#btn-connect')
 btnConnect.addEventListener('click', function () {
 	connectPrinter()
@@ -70,6 +72,7 @@ async function printReceipt() {
 		// await writeChunk(characteristic, template)
 
 		printingStatus.innerHTML = 'printing done'
+		printCounter.innerHTML += printCounter.textContent
 	} catch (error) {
 		console.log('error print receipt', error)
 		errorStatus.innerHTML = 'error: ' + error?.name + ', ' + error?.message
@@ -148,4 +151,15 @@ function writeChunk(characteristic, textString) {
 			reject(error)
 		}
 	})
+}
+
+function resetStatus() {
+	deviceStatus.innerHTML = 'status'
+	serverStatus.innerHTML = 'status'
+	serviceStatus.innerHTML = 'status'
+	characteristicStatus.innerHTML = 'status'
+	templateContent.innerHTML = ''
+	templateStatus.innerHTML = 'status'
+	errorStatus.innerHTML = 'status'
+	printingStatus.innerHTML = 'status'
 }
