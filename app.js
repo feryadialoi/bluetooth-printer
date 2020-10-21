@@ -61,7 +61,7 @@ async function printReceipt() {
 		printingStatus.innerHTML = 'printing...'
 		// await characteristic?.writeValue(buffer)
 
-		writeChunk(characteristic, template)
+		await writeChunk(characteristic, template)
 
 		printingStatus.innerHTML = 'printing done'
 	} catch (error) {
@@ -116,22 +116,30 @@ function writeStrToCharacteristic(characteristic, str) {
 }
 
 function writeChunk(characteristic, textString) {
-	var maxChunk = 300
-	var j = 0
+	return new Promise((resolve, reject) => {
+		try {
+			var maxChunk = 300
+			var j = 0
 
-	if (textString.length > maxChunk) {
-		for (var i = 0; i < textString.length; i += maxChunk) {
-			var subStr
-			if (i + maxChunk <= textString.length) {
-				subStr = textString.substring(i, i + maxChunk)
+			if (textString.length > maxChunk) {
+				for (var i = 0; i < textString.length; i += maxChunk) {
+					var subStr
+					if (i + maxChunk <= textString.length) {
+						subStr = textString.substring(i, i + maxChunk)
+					} else {
+						subStr = textString.substring(i, textString.length)
+					}
+
+					setTimeout(writeStrToCharacteristic, 250 * j, subStr)
+					j++
+				}
 			} else {
-				subStr = textString.substring(i, textString.length)
+				writeStrToCharacteristic(characteristic, textString)
 			}
 
-			setTimeout(writeStrToCharacteristic, 250 * j, subStr)
-			j++
+			resolve('print done')
+		} catch (error) {
+			reject(error)
 		}
-	} else {
-		writeStrToCharacteristic(characteristic, textString)
-	}
+	})
 }
