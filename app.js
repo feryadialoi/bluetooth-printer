@@ -51,7 +51,7 @@ function templateReceipt() {
 async function printReceipt() {
 	try {
 		let template = templateReceipt()
-		// template = 'lorem ipsum dolor sit amet'
+		template = '12345678901234567890123456789012345'
 
 		templateStatus.innerHTML = 'template'
 		templateContent.innerHTML = template
