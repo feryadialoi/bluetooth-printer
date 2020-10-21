@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+
+		<link rel="stylesheet" href="./style.css" />
+	</head>
+
+	<body>
+		<ul>
+			<div>Order</div>
+			<li class="product-order" data-product-id="1">
+				<div class="product-name" data-product-name="product 1">product 1</div>
+				<div class="product-price" data-product-price="10000">Rp 10.000</div>
+				<div class="product-quantity" data-product-quantity="12">12 pcs</div>
+			</li>
+			<li class="product-order" data-product-id="2">
+				<div class="product-name" data-product-name="product 2">product 2</div>
+				<div class="product-price" data-product-price="10000">Rp 10.000</div>
+				<div class="product-quantity" data-product-quantity="12">12 pcs</div>
+			</li>
+			<li class="product-order" data-product-id="3">
+				<div class="product-name" data-product-name="product 3">product 3</div>
+				<div class="product-price" data-product-price="10000">Rp 10.000</div>
+				<div class="product-quantity" data-product-quantity="12">12 pcs</div>
+			</li>
+		</ul>
+
+		<div class="btn-container">
+			<button id="btn-connect" class="btn-order">Connect</button>
+			<button id="btn-print" class="btn-order">Print</button>
+			<button class="btn-order">Order</button>
+		</div>
+		<div>
+			<div class="status-container">
+				<div class="status">device</div>
+				<div class="device-status">status</div>
+			</div>
+			<div class="status-container">
+				<div class="status">server</div>
+				<div class="server-status">status</div>
+			</div>
+			<div class="status-container">
+				<div class="status">service</div>
+				<div class="service-status">status</div>
+			</div>
+			<div class="status-container">
+				<div class="status">characteristic</div>
+				<div class="characteristic-status">status</div>
+			</div>
+		</div>
+	</body>
+	<script src="./app.js"></script>
+</html>

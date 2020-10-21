@@ -1,0 +1,28 @@
+.product-order {
+	list-style-type: none;
+}
+
+.product-order .product-name {
+	font-weight: bold;
+	margin-bottom: 16px;
+}
+
+.btn-order {
+	background-color: #4caf50; /* Green */
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+}
+
+.status {
+	font-weight: bold;
+}
+
+.status-container {
+	display: flex;
+	justify-content: space-between;
+}
