@@ -57,11 +57,15 @@ async function printReceipt() {
 		templateContent.innerHTML = template
 
 		const characteristic = await connectPrinter()
+
+		console.log('characteristic', characteristic)
+
 		const buffer = stringToArrayBuffer(template)
 
 		printingStatus.innerHTML = 'printing...'
 
-		await characteristic?.writeValue(buffer)
+		const written = await characteristic?.writeValue(buffer)
+		console.log('written', written)
 
 		// await writeChunk(characteristic, template)
 
