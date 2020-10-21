@@ -52,6 +52,8 @@ function templateReceipt() {
 
 async function printReceipt() {
 	try {
+		resetStatus()
+
 		let template = templateReceipt()
 		template = '1234567890abcdefghij!@#$%^&*()_+\n'
 
@@ -72,7 +74,7 @@ async function printReceipt() {
 		// await writeChunk(characteristic, template)
 
 		printingStatus.innerHTML = 'printing done'
-		printCounter.innerHTML += printCounter.textContent
+		printCounter.innerHTML = +printCounter.innerHTML + 1
 	} catch (error) {
 		console.log('error print receipt', error)
 		errorStatus.innerHTML = 'error: ' + error?.name + ', ' + error?.message
