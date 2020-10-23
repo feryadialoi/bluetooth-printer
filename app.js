@@ -37,7 +37,10 @@ var device
 var characteristic
 var data
 var msg
-var isMobile = true
+var isMobile = false
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+	isMobile = true
+}
 /* -------------------------------------------------------------------------- */
 /*                             async/await version                            */
 /* -------------------------------------------------------------------------- */
