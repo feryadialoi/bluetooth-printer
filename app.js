@@ -23,7 +23,7 @@ var printCounter = document.querySelector('.print-counter')
 
 var btnConnect = document.querySelector('#btn-connect')
 btnConnect.addEventListener('click', function () {
-	connectPrinter()
+	setPrinter()
 })
 
 var btnPrint = document.querySelector('#btn-print')
@@ -32,6 +32,12 @@ btnPrint.addEventListener('click', function () {
 	printReceipt()
 })
 
+// declare printer
+var device
+var characteristic
+var data
+var msg
+var isMobile = true
 /* -------------------------------------------------------------------------- */
 /*                             async/await version                            */
 /* -------------------------------------------------------------------------- */
@@ -50,31 +56,37 @@ function templateReceipt() {
 	return template
 }
 
+async function setPrinter() {
+	if (!characteristic || !device) {
+		var [_device, _characteristic] = await connectPrinter()
+		device = _device
+		characteristic = _characteristic
+		alert('printer connected')
+	} else {
+		alert('printer connected')
+	}
+}
+
 async function printReceipt() {
 	try {
 		resetStatus()
 
 		let template = templateReceipt()
-		template = '1234567890abcdefghij!@#$%^&*()_+\n'
+		msg = templateReceipt()
 
 		templateStatus.innerHTML = 'template'
 		templateContent.innerHTML = template
 
-		const characteristic = await connectPrinter()
+		await setPrinter()
 
-		console.log('characteristic', characteristic)
-
-		const buffer = stringToArrayBuffer(template)
+		// const buffer = stringToArrayBuffer(template)
 
 		printingStatus.innerHTML = 'printing...'
 
-		const written = await characteristic?.writeValue(buffer)
-		console.log('written', written)
-
-		// await writeChunk(characteristic, template)
+		// await characteristic.writeValue(buffer)
+		sendTextData()
 
 		printingStatus.innerHTML = 'printing done'
-		printCounter.innerHTML = +printCounter.innerHTML + 1
 	} catch (error) {
 		console.log('error print receipt', error)
 		errorStatus.innerHTML = 'error: ' + error?.name + ', ' + error?.message
@@ -87,23 +99,15 @@ async function connectPrinter() {
 			acceptAllDevices: true,
 			optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb'],
 		}
-		const device = await navigator.bluetooth.requestDevice(requestDeviceOptions)
-		if (device) {
-			deviceStatus.innerHTML = device
-		}
-		const server = await device.gatt.connect()
-		if (server) {
-			serverStatus.innerHTML = server
-		}
+
+		const _device = await navigator.bluetooth.requestDevice(requestDeviceOptions)
+		const server = await _device.gatt.connect()
 		const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb')
-		if (service) {
-			serviceStatus.innerHTML = service
-		}
 		const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb')
-		if (characteristic) {
-			characteristicStatus.innerHTML = characteristic
-		}
-		return characteristic
+
+		setStatus(_device, server, service, characteristic)
+
+		return [_device, characteristic]
 	} catch (error) {
 		console.log('error connect printer', error)
 	}
@@ -115,6 +119,10 @@ function stringToArrayBuffer(text) {
 	console.log('encoded', encoded)
 	return encoded.buffer
 }
+
+/* -------------------------------------------------------------------------- */
+/*                             from stackoverflow                             */
+/* -------------------------------------------------------------------------- */
 
 function writeStrToCharacteristic(characteristic, str) {
 	let buffer = new ArrayBuffer(str.length)
@@ -153,6 +161,95 @@ function writeChunk(characteristic, textString) {
 			reject(error)
 		}
 	})
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 from quasar                                */
+/* -------------------------------------------------------------------------- */
+
+function getBytes(text) {
+	console.log('text', text)
+	let br = '\u000A\u000D'
+	text = text === undefined ? br : text
+	// let replaced = $languages.replace(text)
+	let replaced = text
+	console.log('replaced', replaced)
+	let bytes = new TextEncoder('utf-8').encode(replaced + br)
+	console.log('bytes', bytes)
+	return bytes
+}
+// 2
+function addText(arrayText) {
+	let text = msg
+	arrayText.push(text)
+	if (isMobile) {
+		while (text.length >= 20) {
+			let text2 = text.substring(20)
+			arrayText.push(text2)
+			text = text2
+		}
+	}
+}
+// 1
+function sendTextData(device) {
+	let arrayText = []
+	addText(arrayText)
+	console.log('sendTextData => arrayText', arrayText)
+	loop(0, arrayText, device)
+}
+// 3
+function loop(i, arrayText, device) {
+	let arrayBytes = getBytes(arrayText[i])
+	write(device, arrayBytes, () => {
+		i++
+		if (i < arrayText.length) {
+			loop(i, arrayText, device)
+		} else {
+			let arrayBytes = getBytes()
+			write(device, arrayBytes, () => {
+				device.gatt.disconnect()
+			})
+		}
+	})
+}
+// 4
+function write(device, array, callback) {
+	characteristic
+		.writeValue(array)
+		.then(() => {
+			console.log('Printed Array: ' + array.length)
+			setTimeout(() => {
+				if (callback) {
+					callback()
+				}
+			}, 250)
+		})
+		.catch((error) => {
+			handleError(error, device)
+		})
+}
+// 5
+function handleError(error, device) {
+	console.log('handleError-error:', error)
+	console.log('handleError-device:', device)
+}
+/* -------------------------------------------------------------------------- */
+/*                                   my own                                   */
+/* -------------------------------------------------------------------------- */
+
+function setStatus(device, server, service, characteristic) {
+	if (device) {
+		deviceStatus.innerHTML = device
+	}
+	if (server) {
+		serverStatus.innerHTML = server
+	}
+	if (service) {
+		serviceStatus.innerHTML = service
+	}
+	if (characteristic) {
+		characteristicStatus.innerHTML = characteristic
+	}
 }
 
 function resetStatus() {
