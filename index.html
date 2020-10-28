@@ -4,70 +4,250 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
-
-		<link rel="stylesheet" href="./style.css" />
 	</head>
-
 	<body>
-		<ul>
-			<div>Order</div>
-			<li class="product-order" data-product-id="1">
-				<div class="product-name" data-product-name="product 1">product 1</div>
-				<div class="product-price" data-product-price="10000">Rp 10.000</div>
-				<div class="product-quantity" data-product-quantity="12">12 pcs</div>
-			</li>
-			<li class="product-order" data-product-id="2">
-				<div class="product-name" data-product-name="product 2">product 2</div>
-				<div class="product-price" data-product-price="10000">Rp 10.000</div>
-				<div class="product-quantity" data-product-quantity="12">12 pcs</div>
-			</li>
-			<li class="product-order" data-product-id="3">
-				<div class="product-name" data-product-name="product 3">product 3</div>
-				<div class="product-price" data-product-price="10000">Rp 10.000</div>
-				<div class="product-quantity" data-product-quantity="12">12 pcs</div>
-			</li>
-		</ul>
-
-		<div class="btn-container">
-			<button id="btn-connect" class="btn-order">Connect</button>
-			<button id="btn-print" class="btn-order">Print</button>
-			<button class="btn-order">Order</button>
-		</div>
-
-		<div>
-			<div class="status-container">
-				<div class="status">device</div>
-				<div class="device-status">status</div>
-			</div>
-			<div class="status-container">
-				<div class="status">server</div>
-				<div class="server-status">status</div>
-			</div>
-			<div class="status-container">
-				<div class="status">service</div>
-				<div class="service-status">status</div>
-			</div>
-			<div class="status-container">
-				<div class="status">characteristic</div>
-				<div class="characteristic-status">status</div>
-			</div>
-
-			<div class="status-container">
-				<div class="status">template</div>
-				<div class="template-status">status</div>
-			</div>
-			<div class="template-content"></div>
-
-			<div class="status-container">
-				<div class="status">printing</div>
-				<div class="printing-status">status</div>
-			</div>
-
-			<div class="status-container">
-				<div class="status">error</div>
-				<div class="error-status">status</div>
-			</div>
-		</div>
+		<button class="print">print</button>
 	</body>
-	<script src="./app.js"></script>
+	<script>
+		var buttonPrint = document.querySelector('button.print')
+		buttonPrint.addEventListener('click', () => {
+			mockRequestAjax(
+				(success) => {
+					var response = success
+					var data = response.data
+					responseCheckout = data
+
+					printReceipt()
+				},
+				(error) => {
+					//
+				},
+			)
+		})
+
+		/* -------------------------------- mock ajax -------------------------------  */
+		async function mockRequestAjax(success, error) {
+			var response = {
+				code: '200',
+				message: 'success',
+				data: {
+					name: 'John doe',
+					email: 'johndoe@email.com',
+					contact: '091234567890',
+					address: 'Jl. John Doe',
+					discount: 0,
+					total: 74000,
+					products: [
+						{
+							id: 1,
+							name: 'Product 1',
+							price: 20000,
+							quantity: 2,
+						},
+						{
+							id: 2,
+							name: 'Product 2',
+							price: 30000,
+							quantity: 2,
+						},
+						{
+							id: 3,
+							name: 'Product 3',
+							price: 24000,
+							quantity: 3,
+						},
+					],
+					date: new Date(),
+				},
+			}
+
+			success(response)
+		}
+
+		/* ------------------------ printer thermal bluetooth ----------------------- */
+
+		var device
+		var printerCharacteristic
+		var isMobile = false
+		var responseCheckout
+
+		/**
+		 * set device and printerCharacteristic
+		 * from tuples return by connectPrinter method,
+		 * do checking printer already set/connected or not
+		 *
+		 * return void
+		 */
+		async function setPrinter() {
+			if (!printerCharacteristic || !device) {
+				var [_device, _characteristic] = await connectPrinter()
+				device = _device
+				printerCharacteristic = _characteristic
+			} else {
+				// TODO inform that printer already set/connect
+			}
+		}
+
+		/**
+		 * get bluetooth device (printer thermal)
+		 *
+		 * return [device, characteristic]
+		 */
+		async function connectPrinter() {
+			var requestDeviceOptions = {
+				acceptAllDevices: true,
+				optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb'],
+			}
+			var _device = await navigator.bluetooth.requestDevice(requestDeviceOptions)
+			var _server = await _device.gatt.connect()
+			var _service = await _server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb')
+			var _characteristic = await _service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb')
+
+			return [_device, _characteristic]
+		}
+
+		/**
+		 * print receipt, check printer already set/connected or not
+		 *
+		 * return void
+		 */
+		async function printReceipt() {
+			try {
+				if (!printerCharacteristic || !device) {
+					await setPrinter()
+				}
+
+				sendTextData(device)
+			} catch (error) {
+				handleError(error)
+			}
+		}
+
+		function handleError(error) {
+			console.log('printer err:', error)
+			// TODO add another error handling method
+		}
+
+		/**
+		 * create string data from products collection
+		 *
+		 * return string
+		 */
+		function createReceiptTemplateString() {
+			// TODO implements products collection transforming to string data
+
+			/**
+			 * real implementation get data from var responseCheckout,
+			 * convert to string like the dummy implementation does
+			 *
+			 */
+
+			/* ------------------------ real implementation start ----------------------- */
+
+			var productOrders = responseCheckout.products
+			var name = responseCheckout.name
+			var email = responseCheckout.email
+			var contact = responseCheckout.contact
+			var address = responseCheckout.address
+			var discount = responseCheckout.discount
+			var total = responseCheckout.total
+			var date = responseCheckout.date
+
+			var stringData = ''
+
+			stringData += `Sahabat Gemarikan\n\n`
+			stringData += `Tanggal \t: ${date}\n` // implement from php / db date,
+
+			stringData += `Nama \t: ${name}\n`
+			stringData += `Email \t: ${email}\n`
+			stringData += `Kontak \t: ${contact}\n`
+			stringData += `Alamat \t: ${address}\n`
+
+			productOrders.forEach((p) => {
+				stringData += `${p.name} \t ${p.quantity} x Rp${p.price}\n`
+			})
+
+			stringData += `Diskon   \t Rp${discount}\n`
+			stringData += `Total   \t Rp${total}\n\n`
+			stringData += `== Terima Kasih ==\n`
+
+			return stringData
+
+			/* ------------------------- real implementation end ------------------------ */
+		}
+
+		/**
+		 * handling printer string data,
+		 * * convert string to array buffer
+		 * * split array buffer, make severals print job
+		 * * add some waiting time each of print job
+		 *
+		 * return void
+		 */
+
+		// declare methods
+
+		// 1
+		function sendTextData(device) {
+			let arrayText = []
+			addText(arrayText)
+			console.log('sendTextData => arrayText', arrayText)
+			loop(0, arrayText, device)
+		}
+		// 2
+		function addText(arrayText) {
+			let text = createReceiptTemplateString()
+			arrayText.push(text)
+			if (isMobile) {
+				while (text.length >= 20) {
+					let text2 = text.substring(20)
+					arrayText.push(text2)
+					text = text2
+				}
+			}
+		}
+		// 3
+		function loop(i, arrayText, device) {
+			let arrayBytes = getBytes(arrayText[i])
+			write(device, arrayBytes, () => {
+				i++
+				if (i < arrayText.length) {
+					loop(i, arrayText, device)
+				} else {
+					let arrayBytes = getBytes()
+					write(device, arrayBytes, () => {
+						// device.gatt.disconnect()
+					})
+				}
+			})
+		}
+		// 4
+		function getBytes(text) {
+			console.log('text', text)
+			let br = '\u000A\u000D'
+			text = text === undefined ? br : text
+			// let replaced = $languages.replace(text)
+			let replaced = text
+			console.log('replaced', replaced)
+			let bytes = new TextEncoder('utf-8').encode(replaced + br)
+			console.log('bytes', bytes)
+			return bytes
+		}
+		// 5
+		function write(device, array, callback) {
+			printerCharacteristic
+				.writeValue(array)
+				.then(() => {
+					console.log('Printed Array: ' + array.length)
+					setTimeout(() => {
+						if (callback) {
+							callback()
+						}
+					}, 250)
+				})
+				.catch(handleError)
+		}
+
+		/* ---------------------- printer thermal bluetooth end --------------------- */
+	</script>
 </html>

@@ -37,10 +37,13 @@ var device
 var characteristic
 var data
 var msg
-var isMobile = false
+let isMobile = false
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
 	isMobile = true
 }
+console.log('navigator.userAgent', navigator.userAgent)
+console.log('isMobile', isMobile)
+
 /* -------------------------------------------------------------------------- */
 /*                             async/await version                            */
 /* -------------------------------------------------------------------------- */
@@ -50,7 +53,7 @@ function templateReceipt() {
 	// template += '===============================\n\n'
 
 	products.forEach((product) => {
-		template += `${product.name} : ${product.quantity}\n`
+		template += `${product.name}aaaaaaaaaaaaaaaaaaa : ${product.quantity}\n`
 		template += `Rp ${product.price * product.quantity}\n`
 	})
 
